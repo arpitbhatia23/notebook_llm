@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 import apiError from "@/utils/apiError";
 import { apiResponse } from "@/utils/apiResponse";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { GoogleGenAI } from "@google/genai";
 // import pdf from "pdf-parse"; // ✅ Simpler PDF parser
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 import { asyncHandler } from "@/utils/asynchandler";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { embed } from "ai";
 const pdf = require("pdf-parse");
-const genAi = new GoogleGenAI({ apiKey: process.env.gemini_api_key });
 const pc = new Pinecone({ apiKey: process.env.pinecone_api_key });
+const googleai = createGoogleGenerativeAI({
+  apiKey: process.env.gemini_api_key,
+});
+const model = googleai.textEmbedding("text-embedding-004");
 
 const index = pc.index(process.env.pincone_index);
 
@@ -41,15 +45,15 @@ const handler = async (req) => {
 
   await Promise.all(
     chunks.map(async (chunk, i) => {
-      const embedResponse = await genAi.models.embedContent({
-        model: "text-embedding-004",
-        contents: [chunk],
+      const embedResponse = await embed({
+        model,
+        value: chunk,
       });
 
       await index.upsert([
         {
           id: `${file.name}-${i}`,
-          values: embedResponse.embeddings[0].values,
+          values: embedResponse.embedding,
           metadata: { text: chunk, source: file.name },
         },
       ]);

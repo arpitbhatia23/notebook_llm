@@ -2,10 +2,10 @@
 import React, { useEffect } from "react";
 import { Sidebar, SidebarContent, SidebarHeader } from "./ui/sidebar";
 import { useUploadStore } from "@/store/upload.store";
-import { FileIcon, UploadCloud } from "lucide-react";
+import { FileIcon, UploadCloud, X } from "lucide-react";
 
 const SideBar = () => {
-  const { file, loadFile } = useUploadStore();
+  const { file, loadFile, deleteFile } = useUploadStore();
 
   useEffect(() => {
     loadFile();
@@ -21,13 +21,31 @@ const SideBar = () => {
       {/* Content */}
       <SidebarContent className="flex-1 p-4 flex flex-col gap-4">
         {file ? (
-          <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800  ">
-            <FileIcon className="w-6 h-6 text-blue-500" />
-            <div className="flex-1">
-              <p className="text-base font-medium text-gray-900 dark:text-gray-100 truncate">
-                {file.name}
-              </p>
-              <span className="text-xs text-gray-500 dark:text-gray-400">
+          <div className="flex items-start gap-3 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            {/* File Icon */}
+            <FileIcon className="w-6 h-6 text-blue-500 flex-shrink-0" />
+
+            {/* File Info */}
+            <div className="flex-1 min-w-0">
+              {/* File name with ellipsis */}
+              <div className="flex items-center justify-between">
+                <span
+                  className="text-base font-medium text-gray-900 dark:text-gray-100 truncate max-w-[150px] sm:max-w-[200px] md:max-w-[250px]"
+                  title={file.name} // Tooltip to show full name on hover
+                >
+                  {file.name}
+                </span>
+                <button
+                  onClick={deleteFile}
+                  className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 dark:hover:bg-red-900/30 transition"
+                  title="Remove file"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* File type & size */}
+              <span className="block text-xs text-gray-500 dark:text-gray-400 mt-1">
                 {file.type} • {(file.size / 1024).toFixed(1)} KB
               </span>
             </div>

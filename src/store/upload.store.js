@@ -48,4 +48,9 @@ export const useUploadStore = create((set) => ({
       if (onError) onError(error);
     }
   },
+
+  deleteFile: () => {
+    set({ file: null });
+    localStorage.removeItem("uploadedFile");
+  },
 }));
