@@ -1,35 +1,44 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Send } from "lucide-react";
+import { ClockFading, Send } from "lucide-react";
 import useMessageStore from "@/store/message.store";
 import { useCompletion } from "@ai-sdk/react";
 
 const ChatInput = () => {
   const [question, setQuestion] = useState("");
-  const { messages, addMessage } = useMessageStore();
+  const { addMessage, setCompletetion, setloading, loading } =
+    useMessageStore();
 
   const { complete, completion, isLoading } = useCompletion({
     api: "/api/query",
     body: { query: question },
     onFinish: (prompt, completion) => {
+      setloading(false);
+      console.log("set laoding false");
+      setCompletetion(null);
       addMessage({ role: "assitant", content: completion });
     },
-    onProgress: (partial) => {
-      updateLastMessage(partial); // Stream updates
-    },
   });
+
+  useEffect(() => {
+    if (completion) {
+      setloading(false);
+      setCompletetion(completion);
+    }
+  }, [completion]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (question.trim() === "") return;
     addMessage({ role: "user", content: question });
+    setloading(true);
+    console.log("seting lading ture ", loading);
     complete();
     setQuestion("");
   };
-  console.log(messages);
 
   return (
     <form

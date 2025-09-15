@@ -3,7 +3,8 @@ import { create } from "zustand";
 
 const useMessageStore = create((set) => ({
   messages: [],
-
+  completetion: null,
+  loading: false,
   // Add new message
   addMessage: (message) =>
     set((state) => ({
@@ -18,6 +19,12 @@ const useMessageStore = create((set) => ({
       }
       return { messages: updated };
     }),
+
+  setloading: (loading) => set(() => ({ loading: loading })),
+  setCompletetion: (completetion) =>
+    set(() => ({
+      completetion: completetion,
+    })),
 
   clearMessages: () => set({ messages: [] }),
 }));

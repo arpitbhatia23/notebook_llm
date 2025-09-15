@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Card,
   CardContent,
@@ -17,17 +17,27 @@ import useMessageStore from "@/store/message.store";
 const MessageBox = () => {
   const [isUploadPopUp, setIsUploadPopUp] = useState(false);
   const { file, loadFile } = useUploadStore();
-  const { messages } = useMessageStore();
+  const { messages, completetion, loading } = useMessageStore();
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     loadFile();
   }, [loadFile]);
 
+  // ✅ Scroll to bottom whenever messages or completetion changes
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, completetion, loading]);
+
+  console.log(loading);
+
   const onClose = () => setIsUploadPopUp(!isUploadPopUp);
 
   return (
-    <section className=" flex items-center justify-center bg-gray-50">
-      <Card className="w-full h-screen  flex flex-col shadow-lg rounded-none p-0 border border-gray-200">
+    <section className="flex items-center justify-center bg-gray-50">
+      <Card className="w-full h-screen flex flex-col shadow-lg rounded-none p-0 border border-gray-200">
         {/* Header */}
         <CardHeader className="border-b pb-4">
           <CardTitle className="text-2xl font-semibold text-gray-800">
@@ -52,6 +62,24 @@ const MessageBox = () => {
                     {msg.content}
                   </div>
                 ))}
+
+                {/* ✅ Live Assistant Response (streamed completetion) */}
+                {completetion && (
+                  <div className="mr-auto bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none shadow-sm max-w-[75%] px-4 py-2 text-sm leading-relaxed animate-pulse">
+                    {completetion}
+                  </div>
+                )}
+
+                {loading && (
+                  <div className="mr-auto bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none shadow-sm max-w-[75%] px-4 py-2 flex space-x-2 items-center">
+                    <span className="w-2 h-2 bg-gray-700 rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+                    <span className="w-2 h-2 bg-gray-700 rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+                    <span className="w-2 h-2 bg-gray-700 rounded-full animate-bounce"></span>
+                  </div>
+                )}
+
+                {/* ✅ Invisible div to scroll into view */}
+                <div ref={chatEndRef}></div>
               </div>
             ) : (
               <p className="text-gray-400 text-center text-lg">

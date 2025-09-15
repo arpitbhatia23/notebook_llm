@@ -18,7 +18,7 @@ const handler = async (req) => {
 
   const result = await index.query({
     vector: emmbedRespone?.embedding,
-    topK: 5,
+    topK: 15,
     includeMetadata: true,
   });
   const context = result.matches
@@ -27,7 +27,7 @@ const handler = async (req) => {
 
   const stream = await streamText({
     model: googleai("models/gemini-2.0-flash"),
-    prompt: `Answer the question based on the context below.
+    prompt: `Answer the question based on the context below .
     context:${context}
     Question: ${query}
     Answer:`,
